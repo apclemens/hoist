@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+canvas {
+    border: 1px solid black;
+    background-color: #f1f1f1;
+}
+</style>
+    </head>
+    <body onload="startGame()">
+    <script>
+var hoister;
+
+function startGame() {
+    hoister = new Hoister(30,30,"red",240-30,500);
+    hoistArea.start();
+}
+var hoistArea = {
+    canvas: document.createElement("canvas"),
+    start: function() {
+        this.canvas.width = 480;
+        this.canvas.height = 600;
+        this.context = this.canvas.getContext("2d");
+        this.context.font = "30px Arial";
+        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
+        this.interval = setInterval(updateHoistArea, 20);
+        this.keys = {};
+        this.key = '';
+
+        window.addEventListener('keydown', function(e) {
+            hoistArea.keys[e.key] = true;
+        }, false)
+
+        window.addEventListener('keyup', function(e) {
+            hoistArea.keys[e.key] = false;
+        }, false)
+
+        window.addEventListener('keypress', function(e) {
+            hoistArea.key = e.key;
+        }, false)
+    },
+    clear: function() {
+        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+}
+function Hoister(width, height, color, x, y) {
+    this.width = width;
+    this.height = height;
+    this.x = x;
+    this.y = y;
+    this.v_x = 0;
+    this.v_y = 0;
+    this.gravity = 0;
+    this.gravitySpeed = 0;
+    this.update = function() {
+        this.x += this.v_x;
+        this.gravitySpeed += this.gravity;
+        this.y += this.v_y + this.gravitySpeed;
+        ctx = hoistArea.context;
+        ctx.fillStyle = color;
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
+}
+function letter(letter, x, y) {
+    this.letter = letter;
+    this.x = x;
+    this.y = y;
+    this.update = function() {
+        this.y += 1;
+        if (this.y > hoistArea.canvas.height) {
+            return false;
+        }
+        ctx = hoistArea.context;
+        ctx.fillText(letter, this.x, this.y);
+        return true;
+    }
+}
+var frame = 0;
+var letters = [];
+var lettersChoice = ['A','B','C','D','E','F','G','H','I','J','K','L','M'];
+function updateHoistArea() {
+    frame += 1;
+    if (frame % 50 == 0) {
+        var newLetter;
+        do {
+            newLetter = lettersChoice[Math.floor(Math.random()*lettersChoice.length)];
+        } while (letters.find(letter => letter.letter == newLetter))
+        letters.push(new letter(newLetter, Math.random()*hoistArea.canvas.width, 0))
+    }
+    hoistArea.clear();
+    letters.forEach((letter) => {
+        if (!letter.update()) {
+            letters.splice(letters.indexOf(letter), 1)
+        }
+    });
+    /*
+    for (var key in hoistArea.keys) {
+        if (hoistArea.keys[key]) {
+            if (!hoister.gravity) {
+                hoister.gravity = .05;
+            }
+            var grappleLetter = letters.find(letter => letter.letter.toLowerCase() == key.toLowerCase());
+            if (grappleLetter) {
+                var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
+                var acc = 100000.0/dist_sq;
+                var acc_x = (hoister.x - grappleLetter.x) * acc / Math.sqrt(dist_sq);
+                var acc_y = (hoister.y - grappleLetter.y) * acc / Math.sqrt(dist_sq);
+                hoister.v_x -= (hoister.x - grappleLetter.x) * acc / Math.sqrt(dist_sq);
+                hoister.v_y -= (hoister.y - grappleLetter.y) * acc / Math.sqrt(dist_sq);
+            }
+        }
+    }
+    */
+    if (hoistArea.key) {
+        if (!hoister.gravity) {
+            hoister.gravity = .05;
+        }
+        var grappleLetter = letters.find(letter => letter.letter.toLowerCase() == hoistArea.key.toLowerCase());
+        if (grappleLetter) {
+                var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
+                hoister.v_x -= (hoister.x - grappleLetter.x) * 3 / Math.sqrt(dist_sq);
+                hoister.v_y -= (hoister.y - grappleLetter.y) * 3 / Math.sqrt(dist_sq);
+        }
+        hoistArea.key = '';
+    }
+    hoister.update();
+}
+    </script>
+    </body>
+</html>
