@@ -52,11 +52,32 @@ var hoistArea = {
     start: function() {
         this.canvas.width = 480;
         this.canvas.height = 600;
-	this.context = rough.canvas(this.canvas)
+        this.context = rough.canvas(this.canvas)
 	    this.normalContext = this.canvas.getContext('2d');
         this.normalContext.font = "30px Arial";
-        this.interval = setInterval(updateHoistArea, 20);
+        this.interval = 0;
         this.key = '';
+
+        for (var i=0; i<hoistArea.canvas.height; i+=20) {
+            spikeLines[0].push([0,i]);
+            spikeLines[0].push([10,i+10]);
+        }
+        spikeLines[0].push([-10,hoistArea.canvas.height+10])
+        for (var i=0; i<hoistArea.canvas.width; i+=20) {
+            spikeLines[1].push([i, hoistArea.canvas.height]);
+            spikeLines[1].push([i+10,hoistArea.canvas.height-10]);
+        }
+        spikeLines[1].push([hoistArea.canvas.width+10, hoistArea.canvas.height+10])
+        for (var i=hoistArea.canvas.height; i>0; i-=20) {
+            spikeLines[2].push([hoistArea.canvas.width,i]);
+            spikeLines[2].push([hoistArea.canvas.width-10,i-10]);
+        }
+        spikeLines[2].push([hoistArea.canvas.width+10, -10])
+        for (var i=hoistArea.canvas.width; i>0; i-=20) {
+            spikeLines[3].push([i, 0]);
+            spikeLines[3].push([i-10,10]);
+        }
+        spikeLines[3].push([-10,-10])
 
         window.addEventListener('keypress', function(e) {
             if (e.key == ' ') {
@@ -71,6 +92,8 @@ var hoistArea = {
                     hoistArea.key = e.key;
             }
         }, false)
+
+        updateHoistArea();
     },
     clear: function() {
         this.normalContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -90,7 +113,7 @@ function Hoister(width, color, x, y) {
         this.y += this.v_y + this.gravitySpeed;
         ctx = hoistArea.context;
         ctx.fillStyle = color;
-        ctx.circle(this.x, this.y, this.width, { fill: "rgb(10,150,10)", fillWeight: 3});
+        ctx.circle(this.x, this.y, this.width, { fill: "rgb(10,150,10)", fillWeight: 2, fillStyle: 'zigzag'});
         if (!this.gravity) {
             ctx.line(0, this.y+this.width/2, hoistArea.canvas.width, this.y+this.width/2)
         }
@@ -110,15 +133,15 @@ function letter(letter, x, y, direction) {
         if (this.y > hoistArea.canvas.height) {
             return false;
         }
-        lettersDraw(hoistArea.context, this.letter, this.x, this.y)
+        lettersDraw(hoistArea.context, this.letter, this.x, this.y, 30)
         return true;
     }
 }
 var frame = 0;
+var spikeLines = [[],[],[],[]];
 var letters = [];
 var lettersChoice = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 function updateHoistArea() {
-    frame += 1;
     if (lettersChoice.length) {
         if (Math.random() < .03) {
             var index = Math.floor(Math.random()*lettersChoice.length);
@@ -128,23 +151,6 @@ function updateHoistArea() {
         }
     }
     hoistArea.clear();
-    if (hoistArea.key) {
-        var grappleLetter = letters.find(letter => letter.letter.toLowerCase() == hoistArea.key.toLowerCase());
-        if (grappleLetter) {
-            if (!hoister.gravity) {
-                hoister.gravity = .1;
-            }
-
-            hoistArea.context.line(hoister.x, hoister.y, grappleLetter.x, grappleLetter.y, {roughness: 5, seed: 1});
-
-            hoistArea.context.circle(grappleLetter.x, grappleLetter.y, 50, {fill: 'white', fillStyle: 'solid'})
-
-            var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
-            hoister.v_x -= (hoister.x - grappleLetter.x) * 3 / Math.sqrt(dist_sq);
-            hoister.v_y -= (hoister.y - grappleLetter.y) * 3 / Math.sqrt(dist_sq);
-        }
-        hoistArea.key = '';
-    }
     letters.forEach((letter) => {
         if (!letter.update()) {
             lettersChoice.push(letter.letter)
@@ -157,7 +163,34 @@ function updateHoistArea() {
             }
         }
     });
+    if (hoistArea.key) {
+        var grappleLetter = letters.find(letter => letter.letter.toLowerCase() == hoistArea.key.toLowerCase());
+        if (grappleLetter) {
+            if (!hoister.gravity) {
+                hoister.gravity = .1;
+            }
+
+            hoistArea.context.line(hoister.x, hoister.y, grappleLetter.x, grappleLetter.y, {roughness: 5, seed: 1});
+            hoistArea.context.circle(grappleLetter.x, grappleLetter.y, 50, {fill: 'white', fillStyle: 'solid'});
+            lettersDraw(hoistArea.context, grappleLetter.letter, grappleLetter.x, grappleLetter.y, 30);
+
+            var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
+            hoister.v_x -= (hoister.x - grappleLetter.x) * 3 / Math.sqrt(dist_sq);
+            hoister.v_y -= (hoister.y - grappleLetter.y) * 3 / Math.sqrt(dist_sq);
+        }
+        hoistArea.key = '';
+    }
+    // write score
+    for (var i=0; i<(''+frame).length; i++) {
+        lettersDraw(hoistArea.context, (''+frame)[i], 20+i*14, 23, 15)
+    }
     hoister.update();
+    // draw spikes on edge
+    hoistArea.context.polygon(spikeLines[0], {fill: 'rgb(69,39,142)', fillStyle: 'solid', stroke: 'rgb(238,33,74)'});
+    hoistArea.context.polygon(spikeLines[1], {fill: 'rgb(69,39,142)', fillStyle: 'solid', stroke: 'rgb(238,33,74)'});
+    hoistArea.context.polygon(spikeLines[2], {fill: 'rgb(69,39,142)', fillStyle: 'solid', stroke: 'rgb(238,33,74)'});
+    hoistArea.context.polygon(spikeLines[3], {fill: 'rgb(69,39,142)', fillStyle: 'solid', stroke: 'rgb(238,33,74)'});
+    frame += 1;
 }
     </script>
     </body>

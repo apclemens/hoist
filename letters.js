@@ -1,6 +1,4 @@
-var h = 25;
-
-var lettersDraw = function(roughCanvas, letter, x, y) {
+var lettersDraw = function(roughCanvas, letter, x, y, h) {
     switch(letter) {
         case 'A':
             roughCanvas.linearPath([[x-.3*h, y+h/2], [x, y-h/2], [x+.3*h, y+h/2]]);
@@ -105,6 +103,41 @@ var lettersDraw = function(roughCanvas, letter, x, y) {
             break;
         case 'Z':
             roughCanvas.linearPath([[x-.3*h, y-h/2], [x+.3*h, y-h/2], [x-.3*h, y+h/2], [x+.3*h, y+h/2]]);
+            break;
+        case '0':
+            roughCanvas.ellipse(x, y, h*.6, h);
+            roughCanvas.line(x-.3*h, y+h/2, x+.3*h, y-h/2);
+            break;
+        case '1':
+            roughCanvas.linearPath([[x-.3*h,y-h/4],[x, y-h/2],[x, y+h/2]]);
+            roughCanvas.line(x-.3*h, y+h/2, x+.3*h, y+h/2);
+            break;
+        case '2':
+            roughCanvas.curve([[x-.3*h, y-h/4],[x, y-h/2],[x+.3*h, y-h/4],[x-.3*h,y+h/2],[x+.3*h,y+h/2]]);
+            break;
+        case '3':
+            roughCanvas.curve([[x-.3*h,y-h/4],[x,y-h/2],[x+.3*h,y-h/4],[x+.1*h,y],[x-.1*h,y],[x+.1*h,y],[x+.3*h,y+h/4],[x,y+h/2],[x-.3*h,y+h/4]]);
+            break;
+        case '4':
+            roughCanvas.linearPath([[x+.1*h,y+h/2],[x+.1*h,y-h/2],[x-.3*h,y],[x+.3*h,y]]);
+            break;
+        case '5':
+            roughCanvas.linearPath([[x+.3*h, y-h/2],[x-.3*h,y-h/2],[x-.3*h,y-h/4]]);
+            roughCanvas.curve([[x-.3*h,y-h/4],[x+.3*h,y+h/8],[x-.3*h,y+h/2]]);
+            break;
+        case '6':
+            roughCanvas.curve([[x+.3*h,y-h/4],[x,y-h/2],[x-.3*h,y-h/4],[x-.3*h,y+h/4],[x,y+h/2],[x+.3*h,y+h/4],[x,y-.1*h],[x-.3*h,y]]);
+            break;
+        case '7':
+            roughCanvas.linearPath([[x-.3*h,y-h/2],[x+.3*h,y-h/2],[x-.3*h,y+h/2]]);
+            roughCanvas.line(x-.3*h,y,x+.3*h,y);
+            break;
+        case '8':
+            roughCanvas.circle(x, y-h/4, h/2);
+            roughCanvas.circle(x, y+h/4, h/2);
+            break;
+        case '9':
+            roughCanvas.curve([[x-.3*h,y+h/4],[x,y+h/2],[x+.3*h,y+h/4],[x+.3*h,y-h/4],[x,y-h/2],[x-.3*h,y-h/4],[x,y+.1*h],[x+.3*h,y]]);
             break;
     }
 }
