@@ -54,7 +54,10 @@ function Hoister(width, height, color, x, y) {
         this.y += this.v_y + this.gravitySpeed;
         ctx = hoistArea.context;
         ctx.fillStyle = color;
-	ctx.circle(this.x, this.y, this.width, { fill: color }); // fill with red hachure
+        ctx.circle(this.x, this.y, this.width, { fill: color }); // fill with red hachure
+        if (!this.gravity) {
+            ctx.line(0, this.y+this.width/2, hoistArea.canvas.width, this.y+this.width/2)
+        }
     }
 }
 function letter(letter, x, y, direction) {
@@ -67,11 +70,6 @@ function letter(letter, x, y, direction) {
             return false;
         }
         lettersDraw(hoistArea.context, this.letter, this.x, this.y)
-            /*
-        ctx = hoistArea.normalContext;
-        var measure = ctx.measureText(this.letter);
-        ctx.fillText(this.letter, this.x-measure.width/2, this.y+10);
-        */
         return true;
     }
 }
@@ -93,6 +91,12 @@ function updateHoistArea() {
         if (!letter.update()) {
             lettersChoice.push(letter.letter)
             letters.splice(letters.indexOf(letter), 1)
+        } else {
+            if(!hoister.gravity) {
+                if (letter.y > hoister.y + hoister.width/2) {
+                    hoister.gravity = .1;
+                }
+            }
         }
     });
     if (hoistArea.key) {
