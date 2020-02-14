@@ -37,7 +37,7 @@ p {
     <strong>Instructions:</strong> Tap the letter on your keyboard to grapple onto it and hoist yourself up.  Avoid the edges and survive for as long as you can.  Press space to pause.
     </p>
     <p>
-    Thanks to the folks at <a href="https://roughjs.com/" target="_blank">rough.js</a> for their neat graphics library.
+    Thanks to the folks at <a href="https://roughjs.com/" target="_blank">rough.js</a> for providing a team of animators to painstakingly draw each frame in real time.
     </p>
         </div>
     <script>
@@ -57,6 +57,8 @@ var hoistArea = {
         this.normalContext.font = "30px Arial";
         this.interval = 0;
         this.key = '';
+        this.message = ['SPACE TO START'];
+        this.gameOver = false;
 
         for (var i=0; i<hoistArea.canvas.height; i+=20) {
             spikeLines[0].push([0,i]);
@@ -81,18 +83,30 @@ var hoistArea = {
 
         window.addEventListener('keypress', function(e) {
             if (e.key == ' ') {
-                if (hoistArea.interval) {
-                    clearInterval(hoistArea.interval);
-                    hoistArea.interval = 0;
-                } else {
+                if (hoistArea.gameOver) {
+                    hoister = new Hoister(30,"red",240,500);
+                    hoistArea.gameOver = false;
                     hoistArea.interval = setInterval(updateHoistArea, 20);
+                    hoistArea.message = '';
+                    letters = [];
+                    frame = 0;
+                    lettersChoice = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+                } else {
+                    if (hoistArea.interval) {
+                        hoistArea.message = ['PAUSED', 'SPACE TO CONTINUE'];
+                        clearInterval(hoistArea.interval);
+                        updateHoistArea();
+                        hoistArea.interval = 0;
+                    } else {
+                        hoistArea.interval = setInterval(updateHoistArea, 20);
+                        hoistArea.message = '';
+                    }
                 }
             } else {
                 if (hoistArea.interval)
                     hoistArea.key = e.key;
             }
         }, false)
-
         updateHoistArea();
     },
     clear: function() {
@@ -119,8 +133,9 @@ function Hoister(width, color, x, y) {
         }
 
         if ((this.x - this.width/2 < 0) || (this.y - this.width/2 < 0) || (this.y + this.width/2 > hoistArea.canvas.height) || (this.x + this.width/2 > hoistArea.canvas.width)) {
-            console.log('you lose');
+            hoistArea.message = ['GAME OVER', 'SPACE TO RESTART'];
             clearInterval(hoistArea.interval);
+            hoistArea.gameOver = true;
         }
     }
 }
@@ -133,7 +148,7 @@ function letter(letter, x, y, direction) {
         if (this.y > hoistArea.canvas.height) {
             return false;
         }
-        lettersDraw(hoistArea.context, this.letter, this.x, this.y, 30)
+        lettersDraw(hoistArea.context, this.letter, this.x, this.y, 30, {})
         return true;
     }
 }
@@ -172,7 +187,7 @@ function updateHoistArea() {
 
             hoistArea.context.line(hoister.x, hoister.y, grappleLetter.x, grappleLetter.y, {roughness: 5, seed: 1});
             hoistArea.context.circle(grappleLetter.x, grappleLetter.y, 50, {fill: 'white', fillStyle: 'solid'});
-            lettersDraw(hoistArea.context, grappleLetter.letter, grappleLetter.x, grappleLetter.y, 30);
+            lettersDraw(hoistArea.context, grappleLetter.letter, grappleLetter.x, grappleLetter.y, 30, {});
 
             var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
             hoister.v_x -= (hoister.x - grappleLetter.x) * 3 / Math.sqrt(dist_sq);
@@ -182,7 +197,7 @@ function updateHoistArea() {
     }
     // write score
     for (var i=0; i<(''+frame).length; i++) {
-        lettersDraw(hoistArea.context, (''+frame)[i], 20+i*14, 23, 15)
+        lettersDraw(hoistArea.context, (''+frame)[i], 20+i*14, 23, 15, {strokeWidth: .7})
     }
     hoister.update();
     // draw spikes on edge
@@ -190,6 +205,15 @@ function updateHoistArea() {
     hoistArea.context.polygon(spikeLines[1], {fill: 'rgb(69,39,142)', fillStyle: 'solid', stroke: 'rgb(238,33,74)'});
     hoistArea.context.polygon(spikeLines[2], {fill: 'rgb(69,39,142)', fillStyle: 'solid', stroke: 'rgb(238,33,74)'});
     hoistArea.context.polygon(spikeLines[3], {fill: 'rgb(69,39,142)', fillStyle: 'solid', stroke: 'rgb(238,33,74)'});
+
+    // write message
+    if (hoistArea.message) {
+        hoistArea.message.forEach((message, index) => {
+            for (var i=0; i<message.length; i++) {
+                lettersDraw(hoistArea.context, message[i], i*35*.73 + hoistArea.canvas.width/2 - (message.length-1)*35*.73/2, 55 + index*48, 35, {stroke: 'red', strokeWidth: 3})
+            }
+        })
+    }
     frame += 1;
 }
     </script>
