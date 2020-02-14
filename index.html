@@ -1,19 +1,45 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <title>Hoist</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <script src="rough.js"></script>
         <script src="letters.js"></script>
 <style>
+@import url('https://fonts.googleapis.com/css?family=Montserrat+Subrayada|Roboto&display=swap');
+h1 {
+    font-family: 'Montserrat Subrayada', sans-serif;
+    text-align: center;
+    font-weight: normal;
+    font-size: 300%;
+}
 canvas {
     border: 1px solid black;
     background-color: #f1f1f1;
     display: block;
     margin: auto;
 }
+p {
+    font-family: 'Roboto', sans-serif;
+    max-width: 800px;
+    margin: auto;
+    padding-top: 30px;
+}
 </style>
     </head>
     <body onload="startGame()">
+        <h1>Hoist</h1>
+
+        <canvas></canvas>
+
+        <div>
+    <p>
+    <strong>Instructions:</strong> Tap the letter on your keyboard to grapple onto it and hoist yourself up.  Avoid the edges and survive for as long as you can.  Press space to pause.
+    </p>
+    <p>
+    Thanks to the folks at <a href="https://roughjs.com/" target="_blank">rough.js</a> for their graphics library.
+    </p>
+        </div>
     <script>
 var hoister;
 
@@ -22,14 +48,13 @@ function startGame() {
     hoistArea.start();
 }
 var hoistArea = {
-    canvas: document.createElement("canvas"),
+    canvas: document.getElementsByTagName("canvas")[0],
     start: function() {
         this.canvas.width = 480;
         this.canvas.height = 600;
 	this.context = rough.canvas(this.canvas)
 	    this.normalContext = this.canvas.getContext('2d');
         this.normalContext.font = "30px Arial";
-        document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.interval = setInterval(updateHoistArea, 20);
         this.key = '';
 
@@ -108,14 +133,17 @@ function updateHoistArea() {
     if (hoistArea.key) {
         var grappleLetter = letters.find(letter => letter.letter.toLowerCase() == hoistArea.key.toLowerCase());
         if (grappleLetter) {
-		if (!hoister.gravity) {
-		    hoister.gravity = .1;
-		}
-		hoistArea.context.line(hoister.x, hoister.y, grappleLetter.x, grappleLetter.y, {roughness: 5, seed: 1});
+            if (!hoister.gravity) {
+                hoister.gravity = .1;
+            }
 
-                var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
-                hoister.v_x -= (hoister.x - grappleLetter.x) * 3 / Math.sqrt(dist_sq);
-                hoister.v_y -= (hoister.y - grappleLetter.y) * 3 / Math.sqrt(dist_sq);
+            hoistArea.context.line(hoister.x, hoister.y, grappleLetter.x, grappleLetter.y, {roughness: 5, seed: 1});
+
+            hoistArea.context.circle(grappleLetter.x, grappleLetter.y, 50)
+
+            var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
+            hoister.v_x -= (hoister.x - grappleLetter.x) * 3 / Math.sqrt(dist_sq);
+            hoister.v_y -= (hoister.y - grappleLetter.y) * 3 / Math.sqrt(dist_sq);
         }
         hoistArea.key = '';
     }
