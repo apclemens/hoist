@@ -79,7 +79,7 @@ function letter(letter, x, y) {
 }
 var frame = 0;
 var letters = [];
-var lettersChoice = ['A','B','C','D','E','F','G','H','I','J','K','L','M'];
+var lettersChoice = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 function updateHoistArea() {
     frame += 1;
     if (frame % 50 == 0) {
@@ -115,10 +115,16 @@ function updateHoistArea() {
     */
     if (hoistArea.key) {
         if (!hoister.gravity) {
-            hoister.gravity = .05;
+            hoister.gravity = .1;
         }
         var grappleLetter = letters.find(letter => letter.letter.toLowerCase() == hoistArea.key.toLowerCase());
         if (grappleLetter) {
+		// draw line to letter
+		hoistArea.context.beginPath();
+		hoistArea.context.moveTo(hoister.x, hoister.y);
+		hoistArea.context.lineTo(grappleLetter.x, grappleLetter.y);
+		hoistArea.context.stroke();
+
                 var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
                 hoister.v_x -= (hoister.x - grappleLetter.x) * 3 / Math.sqrt(dist_sq);
                 hoister.v_y -= (hoister.y - grappleLetter.y) * 3 / Math.sqrt(dist_sq);
