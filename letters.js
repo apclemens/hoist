@@ -55,7 +55,7 @@ var lettersDraw = function(roughCanvas, letter, x, y, h, options) {
             roughCanvas.line(x-.3*h, y+h/2, x+.3*h, y+h/2, options);
             break;
         case 'M':
-            roughCanvas.linearPath([[x-.4*h, y+h/2],[x-.4*h, y-h/2], [x, y+h/2],[x+.4*h, y-h/2],[x+.4*h, y+h/2]], options);
+            roughCanvas.linearPath([[x-.3*h, y+h/2],[x-.3*h, y-h/2], [x, y+h/2],[x+.3*h, y-h/2],[x+.3*h, y+h/2]], options);
             break;
         case 'N':
             roughCanvas.linearPath([[x-.3*h, y+h/2],[x-.3*h, y-h/2], [x+.3*h, y+h/2], [x+.3*h, y-h/2]], options);
