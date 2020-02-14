@@ -8,6 +8,8 @@
 canvas {
     border: 1px solid black;
     background-color: #f1f1f1;
+    display: block;
+    margin: auto;
 }
 </style>
     </head>
@@ -16,7 +18,7 @@ canvas {
 var hoister;
 
 function startGame() {
-    hoister = new Hoister(30,30,"red",240-30,500);
+    hoister = new Hoister(30,"red",240,500);
     hoistArea.start();
 }
 var hoistArea = {
@@ -39,9 +41,8 @@ var hoistArea = {
         this.normalContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }
-function Hoister(width, height, color, x, y) {
+function Hoister(width, color, x, y) {
     this.width = width;
-    this.height = height;
     this.x = x;
     this.y = y;
     this.v_x = 0;
@@ -57,6 +58,11 @@ function Hoister(width, height, color, x, y) {
         ctx.circle(this.x, this.y, this.width, { fill: color }); // fill with red hachure
         if (!this.gravity) {
             ctx.line(0, this.y+this.width/2, hoistArea.canvas.width, this.y+this.width/2)
+        }
+
+        if ((this.x - this.width/2 < 0) || (this.y - this.width/2 < 0) || (this.y + this.width/2 > hoistArea.canvas.height) || (this.x + this.width/2 > hoistArea.canvas.width)) {
+            console.log('you lose');
+            clearInterval(hoistArea.interval);
         }
     }
 }
