@@ -37,7 +37,7 @@ p {
     <strong>Instructions:</strong> Tap the letter on your keyboard to grapple onto it and hoist yourself up.  Avoid the edges and survive for as long as you can.  Press space to pause.
     </p>
     <p>
-    Thanks to the folks at <a href="https://roughjs.com/" target="_blank">rough.js</a> for their graphics library.
+    Thanks to the folks at <a href="https://roughjs.com/" target="_blank">rough.js</a> for their neat graphics library.
     </p>
         </div>
     <script>
@@ -80,7 +80,7 @@ function Hoister(width, color, x, y) {
         this.y += this.v_y + this.gravitySpeed;
         ctx = hoistArea.context;
         ctx.fillStyle = color;
-        ctx.circle(this.x, this.y, this.width, { fill: color }); // fill with red hachure
+        ctx.circle(this.x, this.y, this.width, { fill: "rgb(10,150,10)", fillWeight: 3});
         if (!this.gravity) {
             ctx.line(0, this.y+this.width/2, hoistArea.canvas.width, this.y+this.width/2)
         }
@@ -118,6 +118,23 @@ function updateHoistArea() {
         }
     }
     hoistArea.clear();
+    if (hoistArea.key) {
+        var grappleLetter = letters.find(letter => letter.letter.toLowerCase() == hoistArea.key.toLowerCase());
+        if (grappleLetter) {
+            if (!hoister.gravity) {
+                hoister.gravity = .1;
+            }
+
+            hoistArea.context.line(hoister.x, hoister.y, grappleLetter.x, grappleLetter.y, {roughness: 5, seed: 1});
+
+            hoistArea.context.circle(grappleLetter.x, grappleLetter.y, 50, {fill: 'white', fillStyle: 'solid'})
+
+            var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
+            hoister.v_x -= (hoister.x - grappleLetter.x) * 3 / Math.sqrt(dist_sq);
+            hoister.v_y -= (hoister.y - grappleLetter.y) * 3 / Math.sqrt(dist_sq);
+        }
+        hoistArea.key = '';
+    }
     letters.forEach((letter) => {
         if (!letter.update()) {
             lettersChoice.push(letter.letter)
@@ -130,23 +147,6 @@ function updateHoistArea() {
             }
         }
     });
-    if (hoistArea.key) {
-        var grappleLetter = letters.find(letter => letter.letter.toLowerCase() == hoistArea.key.toLowerCase());
-        if (grappleLetter) {
-            if (!hoister.gravity) {
-                hoister.gravity = .1;
-            }
-
-            hoistArea.context.line(hoister.x, hoister.y, grappleLetter.x, grappleLetter.y, {roughness: 5, seed: 1});
-
-            hoistArea.context.circle(grappleLetter.x, grappleLetter.y, 50)
-
-            var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
-            hoister.v_x -= (hoister.x - grappleLetter.x) * 3 / Math.sqrt(dist_sq);
-            hoister.v_y -= (hoister.y - grappleLetter.y) * 3 / Math.sqrt(dist_sq);
-        }
-        hoistArea.key = '';
-    }
     hoister.update();
 }
     </script>
