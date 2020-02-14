@@ -59,7 +59,17 @@ var hoistArea = {
         this.key = '';
 
         window.addEventListener('keypress', function(e) {
-            hoistArea.key = e.key;
+            if (e.key == ' ') {
+                if (hoistArea.interval) {
+                    clearInterval(hoistArea.interval);
+                    hoistArea.interval = 0;
+                } else {
+                    hoistArea.interval = setInterval(updateHoistArea, 20);
+                }
+            } else {
+                if (hoistArea.interval)
+                    hoistArea.key = e.key;
+            }
         }, false)
     },
     clear: function() {
