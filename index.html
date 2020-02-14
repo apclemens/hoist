@@ -2,7 +2,8 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-	<script src="rough.js"></script>
+        <script src="rough.js"></script>
+        <script src="letters.js"></script>
 <style>
 canvas {
     border: 1px solid black;
@@ -65,9 +66,12 @@ function letter(letter, x, y, direction) {
         if (this.y > hoistArea.canvas.height) {
             return false;
         }
+        lettersDraw(hoistArea.context, this.letter, this.x, this.y)
+            /*
         ctx = hoistArea.normalContext;
-	var measure = ctx.measureText(this.letter);
+        var measure = ctx.measureText(this.letter);
         ctx.fillText(this.letter, this.x-measure.width/2, this.y+10);
+        */
         return true;
     }
 }
@@ -97,14 +101,7 @@ function updateHoistArea() {
 		if (!hoister.gravity) {
 		    hoister.gravity = .1;
 		}
-		// draw line to letter
-		/*
-		hoistArea.context.beginPath();
-		hoistArea.context.moveTo(hoister.x, hoister.y);
-		hoistArea.context.lineTo(grappleLetter.x, grappleLetter.y);
-		hoistArea.context.stroke();
-		*/
-		hoistArea.context.linearPath([[hoister.x, hoister.y], [grappleLetter.x, grappleLetter.y]], {roughness: 5, seed: 1});
+		hoistArea.context.line(hoister.x, hoister.y, grappleLetter.x, grappleLetter.y, {roughness: 5, seed: 1});
 
                 var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
                 hoister.v_x -= (hoister.x - grappleLetter.x) * 3 / Math.sqrt(dist_sq);
