@@ -2,6 +2,7 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	<script src="rough.js"></script>
 <style>
 canvas {
     border: 1px solid black;
@@ -22,8 +23,9 @@ var hoistArea = {
     start: function() {
         this.canvas.width = 480;
         this.canvas.height = 600;
-        this.context = this.canvas.getContext("2d");
-        this.context.font = "30px Arial";
+	this.context = rough.canvas(this.canvas)
+	    this.normalContext = this.canvas.getContext('2d');
+        this.normalContext.font = "30px Arial";
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.interval = setInterval(updateHoistArea, 20);
         this.keys = {};
@@ -42,7 +44,7 @@ var hoistArea = {
         }, false)
     },
     clear: function() {
-        this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    this.normalContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }
 function Hoister(width, height, color, x, y) {
@@ -60,7 +62,7 @@ function Hoister(width, height, color, x, y) {
         this.y += this.v_y + this.gravitySpeed;
         ctx = hoistArea.context;
         ctx.fillStyle = color;
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+	ctx.circle(this.x, this.y, this.width, { fill: color }); // fill with red hachure
     }
 }
 function letter(letter, x, y, direction) {
@@ -72,8 +74,9 @@ function letter(letter, x, y, direction) {
         if (this.y > hoistArea.canvas.height) {
             return false;
         }
-        ctx = hoistArea.context;
-        ctx.fillText(letter, this.x, this.y);
+        ctx = hoistArea.normalContext;
+	var measure = ctx.measureText(this.letter);
+        ctx.fillText(this.letter, this.x-measure.width/2, this.y+10);
         return true;
     }
 }
@@ -82,8 +85,9 @@ var letters = [];
 var lettersChoice = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 function updateHoistArea() {
     frame += 1;
-    if (frame % 50 == 0) {
+    if (Math.random() < .03) {
         var newLetter;
+	    // TODO skip if there aren't any letters available
         do {
             newLetter = lettersChoice[Math.floor(Math.random()*lettersChoice.length)];
         } while (letters.find(letter => letter.letter == newLetter))
@@ -120,10 +124,13 @@ function updateHoistArea() {
 		    hoister.gravity = .1;
 		}
 		// draw line to letter
+		/*
 		hoistArea.context.beginPath();
 		hoistArea.context.moveTo(hoister.x, hoister.y);
 		hoistArea.context.lineTo(grappleLetter.x, grappleLetter.y);
 		hoistArea.context.stroke();
+		*/
+		hoistArea.context.linearPath([[hoister.x, hoister.y], [grappleLetter.x, grappleLetter.y]], {roughness: 5, seed: 1});
 
                 var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
                 hoister.v_x -= (hoister.x - grappleLetter.x) * 3 / Math.sqrt(dist_sq);
