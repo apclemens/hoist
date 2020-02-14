@@ -28,23 +28,14 @@ var hoistArea = {
         this.normalContext.font = "30px Arial";
         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
         this.interval = setInterval(updateHoistArea, 20);
-        this.keys = {};
         this.key = '';
-
-        window.addEventListener('keydown', function(e) {
-            hoistArea.keys[e.key] = true;
-        }, false)
-
-        window.addEventListener('keyup', function(e) {
-            hoistArea.keys[e.key] = false;
-        }, false)
 
         window.addEventListener('keypress', function(e) {
             hoistArea.key = e.key;
         }, false)
     },
     clear: function() {
-    this.normalContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.normalContext.clearRect(0, 0, this.canvas.width, this.canvas.height);
     }
 }
 function Hoister(width, height, color, x, y) {
@@ -85,38 +76,21 @@ var letters = [];
 var lettersChoice = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 function updateHoistArea() {
     frame += 1;
-    if (Math.random() < .03) {
-        var newLetter;
-	    // TODO skip if there aren't any letters available
-        do {
-            newLetter = lettersChoice[Math.floor(Math.random()*lettersChoice.length)];
-        } while (letters.find(letter => letter.letter == newLetter))
-        letters.push(new letter(newLetter, Math.random()*hoistArea.canvas.width, 0, 2*Math.pi*Math.random()))
+    if (lettersChoice.length) {
+        if (Math.random() < .03) {
+            var index = Math.floor(Math.random()*lettersChoice.length);
+            var newLetter = lettersChoice[index];
+            lettersChoice.splice(index, 1);
+            letters.push(new letter(newLetter, Math.random()*hoistArea.canvas.width, 0, 2*Math.pi*Math.random()))
+        }
     }
     hoistArea.clear();
     letters.forEach((letter) => {
         if (!letter.update()) {
+            lettersChoice.push(letter.letter)
             letters.splice(letters.indexOf(letter), 1)
         }
     });
-    /*
-    for (var key in hoistArea.keys) {
-        if (hoistArea.keys[key]) {
-            if (!hoister.gravity) {
-                hoister.gravity = .05;
-            }
-            var grappleLetter = letters.find(letter => letter.letter.toLowerCase() == key.toLowerCase());
-            if (grappleLetter) {
-                var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
-                var acc = 100000.0/dist_sq;
-                var acc_x = (hoister.x - grappleLetter.x) * acc / Math.sqrt(dist_sq);
-                var acc_y = (hoister.y - grappleLetter.y) * acc / Math.sqrt(dist_sq);
-                hoister.v_x -= (hoister.x - grappleLetter.x) * acc / Math.sqrt(dist_sq);
-                hoister.v_y -= (hoister.y - grappleLetter.y) * acc / Math.sqrt(dist_sq);
-            }
-        }
-    }
-    */
     if (hoistArea.key) {
         var grappleLetter = letters.find(letter => letter.letter.toLowerCase() == hoistArea.key.toLowerCase());
         if (grappleLetter) {
