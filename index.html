@@ -63,7 +63,7 @@ function Hoister(width, height, color, x, y) {
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 }
-function letter(letter, x, y) {
+function letter(letter, x, y, direction) {
     this.letter = letter;
     this.x = x;
     this.y = y;
@@ -87,7 +87,7 @@ function updateHoistArea() {
         do {
             newLetter = lettersChoice[Math.floor(Math.random()*lettersChoice.length)];
         } while (letters.find(letter => letter.letter == newLetter))
-        letters.push(new letter(newLetter, Math.random()*hoistArea.canvas.width, 0))
+        letters.push(new letter(newLetter, Math.random()*hoistArea.canvas.width, 0, 2*Math.pi*Math.random()))
     }
     hoistArea.clear();
     letters.forEach((letter) => {
@@ -114,11 +114,11 @@ function updateHoistArea() {
     }
     */
     if (hoistArea.key) {
-        if (!hoister.gravity) {
-            hoister.gravity = .1;
-        }
         var grappleLetter = letters.find(letter => letter.letter.toLowerCase() == hoistArea.key.toLowerCase());
         if (grappleLetter) {
+		if (!hoister.gravity) {
+		    hoister.gravity = .1;
+		}
 		// draw line to letter
 		hoistArea.context.beginPath();
 		hoistArea.context.moveTo(hoister.x, hoister.y);
