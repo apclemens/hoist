@@ -139,13 +139,14 @@ function Hoister(width, color, x, y) {
         }
     }
 }
-function letter(letter, x, y, direction) {
+function Letter(letter, x, y, direction, speed) {
     this.letter = letter;
     this.x = x;
     this.y = y;
+	this.speed = speed;
     this.update = function() {
-        this.y -= Math.sin(direction);
-        this.x += Math.cos(direction);
+        this.y -= this.speed*Math.sin(direction);
+        this.x += this.speed*Math.cos(direction);
         if ((this.x < 0) || (this.y < 0) || (this.y > hoistArea.canvas.height) || (this.x > hoistArea.canvas.width)) {
             return false;
         }
@@ -165,7 +166,7 @@ function updateHoistArea() {
 		    var index = Math.floor(Math.random()*lettersChoice.length);
 		    var newLetter = lettersChoice[index];
 		    lettersChoice.splice(index, 1);
-		    return new letter(newLetter, .5*hoistArea.canvas.width, 0, 3/2*Math.PI)
+		    return new Letter(newLetter, .5*hoistArea.canvas.width, 0, 3/2*Math.PI, 1)
 		}
 		decideToCreateLetter = function(frame) {
 			return frame % 100 == 1;
@@ -176,7 +177,7 @@ function updateHoistArea() {
 		    var index = Math.floor(Math.random()*lettersChoice.length);
 		    var newLetter = lettersChoice[index];
 		    lettersChoice.splice(index, 1);
-		    return new letter(newLetter, Math.random()*hoistArea.canvas.width, 0, 3/2*Math.PI)
+		    return new Letter(newLetter, Math.random()*hoistArea.canvas.width, 0, 3/2*Math.PI, 1)
 		}
 		decideToCreateLetter = function(frame) {
 			return frame % 50 == 1;
@@ -193,9 +194,11 @@ function updateHoistArea() {
 		    var newLetter = lettersChoice[index];
 		    lettersChoice.splice(index, 1);
 			if (Math.random() < .5) {
-		    return new letter(newLetter, Math.random()*hoistArea.canvas.width, hoistArea.canvas.height, 1/2*Math.PI)
+							  // bottom up
+		    return new Letter(newLetter, Math.random()*hoistArea.canvas.width, hoistArea.canvas.height, 1/2*Math.PI, .5+Math.random())
 			} else {
-		    return new letter(newLetter, Math.random()*hoistArea.canvas.width, 0, 3/2*Math.PI)
+							  // top down
+		    return new Letter(newLetter, Math.random()*hoistArea.canvas.width, 0, 3/2*Math.PI, 1)
 			}
 		}
 	}
@@ -204,7 +207,7 @@ function updateHoistArea() {
 		    var index = Math.floor(Math.random()*lettersChoice.length);
 		    var newLetter = lettersChoice[index];
 		    lettersChoice.splice(index, 1);
-		    return new letter(newLetter, Math.random()*hoistArea.canvas.width, hoistArea.canvas.height, 1/2*Math.PI)
+		    return new Letter(newLetter, Math.random()*hoistArea.canvas.width, hoistArea.canvas.height, 1/2*Math.PI, .5+Math.random())
 		}
 	}
 	if (frame == 3000) {
@@ -214,13 +217,13 @@ function updateHoistArea() {
 			    lettersChoice.splice(index, 1);
 			    var rand = Math.random();
 				if (rand < .25) {
-			    return new letter(newLetter, Math.random()*hoistArea.canvas.width, 0, Math.PI + Math.PI*Math.random())
+			    return new Letter(newLetter, Math.random()*hoistArea.canvas.width, 0, Math.PI + Math.PI*Math.random(), .5+Math.random())
 				} else if (rand < .5) {
-			    return new letter(newLetter, 0, Math.random()*hoistArea.canvas.height, 3/2*Math.PI + Math.PI*Math.random())
+			    return new Letter(newLetter, 0, Math.random()*hoistArea.canvas.height, 3/2*Math.PI + Math.PI*Math.random(), .5+Math.random())
 				} else if (rand < .75) {
-			    return new letter(newLetter, Math.random()*hoistArea.canvas.width, hoistArea.canvas.height, Math.PI*Math.random())
+			    return new Letter(newLetter, Math.random()*hoistArea.canvas.width, hoistArea.canvas.height, Math.PI*Math.random(), .5+Math.random())
 				} else {
-			    return new letter(newLetter, hoistArea.canvas.width, Math.random()*hoistArea.canvas.height, 1/2*Math.PI + Math.PI*Math.random())
+			    return new Letter(newLetter, hoistArea.canvas.width, Math.random()*hoistArea.canvas.height, 1/2*Math.PI + Math.PI*Math.random(), .5+Math.random())
 				}
 		}
 		decideToCreateLetter = function(frame) {
