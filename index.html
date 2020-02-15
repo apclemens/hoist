@@ -60,22 +60,22 @@ var hoistArea = {
         this.message = ['SPACE TO START'];
         this.gameOver = false;
 
-        for (var i=0; i<hoistArea.canvas.height; i+=20) {
+        for (var i=10; i<hoistArea.canvas.height; i+=20) {
             spikeLines[0].push([0,i]);
             spikeLines[0].push([10,i+10]);
         }
         spikeLines[0].push([-10,hoistArea.canvas.height+10])
-        for (var i=0; i<hoistArea.canvas.width; i+=20) {
+        for (var i=10; i<hoistArea.canvas.width; i+=20) {
             spikeLines[1].push([i, hoistArea.canvas.height]);
             spikeLines[1].push([i+10,hoistArea.canvas.height-10]);
         }
         spikeLines[1].push([hoistArea.canvas.width+10, hoistArea.canvas.height+10])
-        for (var i=hoistArea.canvas.height; i>0; i-=20) {
+        for (var i=hoistArea.canvas.height-10; i>0; i-=20) {
             spikeLines[2].push([hoistArea.canvas.width,i]);
             spikeLines[2].push([hoistArea.canvas.width-10,i-10]);
         }
         spikeLines[2].push([hoistArea.canvas.width+10, -10])
-        for (var i=hoistArea.canvas.width; i>0; i-=20) {
+        for (var i=hoistArea.canvas.width-10; i>0; i-=20) {
             spikeLines[3].push([i, 0]);
             spikeLines[3].push([i-10,10]);
         }
@@ -144,8 +144,9 @@ function letter(letter, x, y, direction) {
     this.x = x;
     this.y = y;
     this.update = function() {
-        this.y += 1;
-        if (this.y > hoistArea.canvas.height) {
+        this.y -= Math.sin(direction);
+        this.x += Math.cos(direction);
+        if ((this.x < 0) || (this.y < 0) || (this.y > hoistArea.canvas.height) || (this.x > hoistArea.canvas.width)) {
             return false;
         }
         lettersDraw(hoistArea.context, this.letter, this.x, this.y, 30, {})
@@ -155,14 +156,75 @@ function letter(letter, x, y, direction) {
 var frame = 0;
 var spikeLines = [[],[],[],[]];
 var letters = [];
+var createLetterFunction;
+var decideToCreateLetter;
 var lettersChoice = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
 function updateHoistArea() {
+	if (frame == 0) {
+		createLetterFunction = function(frame) {
+		    var index = Math.floor(Math.random()*lettersChoice.length);
+		    var newLetter = lettersChoice[index];
+		    lettersChoice.splice(index, 1);
+		    return new letter(newLetter, .5*hoistArea.canvas.width, 0, 3/2*Math.PI)
+		}
+		decideToCreateLetter = function(frame) {
+			return frame % 100 == 0;
+		}
+	}
+	if (frame == 500) {
+		createLetterFunction = function(frame) {
+		    var index = Math.floor(Math.random()*lettersChoice.length);
+		    var newLetter = lettersChoice[index];
+		    lettersChoice.splice(index, 1);
+		    return new letter(newLetter, Math.random()*hoistArea.canvas.width, 0, 3/2*Math.PI)
+		}
+		decideToCreateLetter = function(frame) {
+			return Math.random() < .03;
+		}
+	}
+	if (frame == 1500) {
+		createLetterFunction = function(frame) {
+		    var index = Math.floor(Math.random()*lettersChoice.length);
+		    var newLetter = lettersChoice[index];
+		    lettersChoice.splice(index, 1);
+			if (Math.random() < .5) {
+		    return new letter(newLetter, Math.random()*hoistArea.canvas.width, hoistArea.canvas.height, 1/2*Math.PI)
+			} else {
+		    return new letter(newLetter, Math.random()*hoistArea.canvas.width, 0, 3/2*Math.PI)
+			}
+		}
+	}
+	if (frame == 2000) {
+		createLetterFunction = function(frame) {
+		    var index = Math.floor(Math.random()*lettersChoice.length);
+		    var newLetter = lettersChoice[index];
+		    lettersChoice.splice(index, 1);
+		    return new letter(newLetter, Math.random()*hoistArea.canvas.width, hoistArea.canvas.height, 1/2*Math.PI)
+		}
+	}
+	if (frame == 3000) {
+		createLetterFunction = function(frame) {
+			    var index = Math.floor(Math.random()*lettersChoice.length);
+			    var newLetter = lettersChoice[index];
+			    lettersChoice.splice(index, 1);
+			    var rand = Math.random();
+				if (rand < .25) {
+			    return new letter(newLetter, Math.random()*hoistArea.canvas.width, 0, Math.PI + Math.PI*Math.random())
+				} else if (rand < .5) {
+			    return new letter(newLetter, 0, Math.random()*hoistArea.canvas.height, 3/2*Math.PI + Math.PI*Math.random())
+				} else if (rand < .75) {
+			    return new letter(newLetter, Math.random()*hoistArea.canvas.width, hoistArea.canvas.height, Math.PI*Math.random())
+				} else {
+			    return new letter(newLetter, hoistArea.canvas.width, Math.random()*hoistArea.canvas.height, 1/2*Math.PI + Math.PI*Math.random())
+				}
+		}
+		decideToCreateLetter = function(frame) {
+			return Math.random() < .06;
+		}
+	}
     if (lettersChoice.length) {
-        if (Math.random() < .03) {
-            var index = Math.floor(Math.random()*lettersChoice.length);
-            var newLetter = lettersChoice[index];
-            lettersChoice.splice(index, 1);
-            letters.push(new letter(newLetter, Math.random()*hoistArea.canvas.width, 0, 2*Math.pi*Math.random()))
+        if (decideToCreateLetter(frame)) {
+		letters.push(createLetterFunction(frame));
         }
     }
     hoistArea.clear();
