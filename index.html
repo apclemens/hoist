@@ -168,7 +168,7 @@ function updateHoistArea() {
 		    return new letter(newLetter, .5*hoistArea.canvas.width, 0, 3/2*Math.PI)
 		}
 		decideToCreateLetter = function(frame) {
-			return frame % 100 == 0;
+			return frame % 100 == 1;
 		}
 	}
 	if (frame == 500) {
@@ -178,6 +178,11 @@ function updateHoistArea() {
 		    lettersChoice.splice(index, 1);
 		    return new letter(newLetter, Math.random()*hoistArea.canvas.width, 0, 3/2*Math.PI)
 		}
+		decideToCreateLetter = function(frame) {
+			return frame % 50 == 1;
+		}
+	}
+	if (frame == 1000) {
 		decideToCreateLetter = function(frame) {
 			return Math.random() < .03;
 		}
@@ -247,11 +252,12 @@ function updateHoistArea() {
                 hoister.gravity = .1;
             }
 
-            hoistArea.context.line(hoister.x, hoister.y, grappleLetter.x, grappleLetter.y, {roughness: 5, seed: 1});
-            hoistArea.context.circle(grappleLetter.x, grappleLetter.y, 50, {fill: 'white', fillStyle: 'solid'});
-            lettersDraw(hoistArea.context, grappleLetter.letter, grappleLetter.x, grappleLetter.y, 30, {});
-
             var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
+
+            hoistArea.context.line(hoister.x, hoister.y, grappleLetter.x, grappleLetter.y, {roughness: 5, stroke: 'green'});
+            hoistArea.context.circle(grappleLetter.x, grappleLetter.y, 50, {fill: 'white', fillStyle: 'solid', stroke: 'green'});
+            lettersDraw(hoistArea.context, grappleLetter.letter, grappleLetter.x, grappleLetter.y, 30, {stroke: 'green'});
+
             hoister.v_x -= (hoister.x - grappleLetter.x) * 3 / Math.sqrt(dist_sq);
             hoister.v_y -= (hoister.y - grappleLetter.y) * 3 / Math.sqrt(dist_sq);
         }
