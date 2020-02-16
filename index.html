@@ -83,6 +83,7 @@ var hoistArea = {
 
         window.addEventListener('keypress', function(e) {
             if (e.key == ' ') {
+		    e.preventDefault();
                 if (hoistArea.gameOver) {
                     hoister = new Hoister(30,"red",240,500);
                     hoistArea.gameOver = false;
@@ -102,6 +103,7 @@ var hoistArea = {
                         hoistArea.message = '';
                     }
                 }
+		    return False;
             } else {
                 if (hoistArea.interval)
                     hoistArea.key = e.key;
@@ -150,7 +152,7 @@ function Letter(letter, x, y, direction, speed) {
         if ((this.x < 0) || (this.y < 0) || (this.y > hoistArea.canvas.height) || (this.x > hoistArea.canvas.width)) {
             return false;
         }
-        lettersDraw(hoistArea.context, this.letter, this.x, this.y, 30, {})
+	    lettersDraw(hoistArea.context, this.letter, this.x, this.y, 30, {})
         return true;
     }
 }
@@ -160,39 +162,40 @@ var letters = [];
 var createLetterFunction;
 var decideToCreateLetter;
 var lettersChoice = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+var numbersChoice = ['1','2','3','4','5','6','7','8','9','0'];
 function updateHoistArea() {
 	if (frame == 0) {
-		createLetterFunction = function(frame) {
+		chooseLetter = function() {
 		    var index = Math.floor(Math.random()*lettersChoice.length);
 		    var newLetter = lettersChoice[index];
 		    lettersChoice.splice(index, 1);
+			return newLetter;
+		}
+		createLetterFunction = function(frame) {
+			var newLetter = chooseLetter();
 		    return new Letter(newLetter, .5*hoistArea.canvas.width, 0, 3/2*Math.PI, 1)
 		}
 		decideToCreateLetter = function(frame) {
-			return frame % 100 == 1;
+			return lettersChoice.length && frame % 100 == 1;
 		}
 	}
 	if (frame == 500) {
 		createLetterFunction = function(frame) {
-		    var index = Math.floor(Math.random()*lettersChoice.length);
-		    var newLetter = lettersChoice[index];
-		    lettersChoice.splice(index, 1);
+			var newLetter = chooseLetter();
 		    return new Letter(newLetter, Math.random()*hoistArea.canvas.width, 0, 3/2*Math.PI, 1)
 		}
 		decideToCreateLetter = function(frame) {
-			return frame % 50 == 1;
+			return lettersChoice.length && frame % 50 == 1;
 		}
 	}
 	if (frame == 1000) {
 		decideToCreateLetter = function(frame) {
-			return Math.random() < .03;
+			return lettersChoice.length && Math.random() < .03;
 		}
 	}
 	if (frame == 1500) {
 		createLetterFunction = function(frame) {
-		    var index = Math.floor(Math.random()*lettersChoice.length);
-		    var newLetter = lettersChoice[index];
-		    lettersChoice.splice(index, 1);
+							  var newLetter = chooseLetter();
 			if (Math.random() < .5) {
 							  // bottom up
 		    return new Letter(newLetter, Math.random()*hoistArea.canvas.width, hoistArea.canvas.height, 1/2*Math.PI, .5+Math.random())
@@ -204,17 +207,13 @@ function updateHoistArea() {
 	}
 	if (frame == 2000) {
 		createLetterFunction = function(frame) {
-		    var index = Math.floor(Math.random()*lettersChoice.length);
-		    var newLetter = lettersChoice[index];
-		    lettersChoice.splice(index, 1);
+							  var newLetter = chooseLetter();
 		    return new Letter(newLetter, Math.random()*hoistArea.canvas.width, hoistArea.canvas.height, 1/2*Math.PI, .5+Math.random())
 		}
 	}
 	if (frame == 3000) {
 		createLetterFunction = function(frame) {
-			    var index = Math.floor(Math.random()*lettersChoice.length);
-			    var newLetter = lettersChoice[index];
-			    lettersChoice.splice(index, 1);
+							  var newLetter = chooseLetter();
 			    var rand = Math.random();
 				if (rand < .25) {
 			    return new Letter(newLetter, Math.random()*hoistArea.canvas.width, 0, Math.PI + Math.PI*Math.random(), .5+Math.random())
@@ -227,17 +226,18 @@ function updateHoistArea() {
 				}
 		}
 		decideToCreateLetter = function(frame) {
-			return Math.random() < .06;
+			return lettersChoice.length && Math.random() < .06;
 		}
 	}
-    if (lettersChoice.length) {
-        if (decideToCreateLetter(frame)) {
-		letters.push(createLetterFunction(frame));
-        }
-    }
+if (decideToCreateLetter(frame)) {
+	letters.push(createLetterFunction(frame));
+}
     hoistArea.clear();
     letters.forEach((letter) => {
         if (!letter.update()) {
+		if (Number(letter.letter))
+            numbersChoice.push(letter.letter)
+		else
             lettersChoice.push(letter.letter)
             letters.splice(letters.indexOf(letter), 1)
         } else {
