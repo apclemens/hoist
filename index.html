@@ -20,6 +20,12 @@
             display: block;
             margin: auto;
         }
+	button {
+		font-family: 'Roboto', sans-serif;
+		    display: block;
+		    margin: auto;
+		    margin-top: 30px;
+	}
         p {
             font-family: 'Roboto', sans-serif;
             max-width: 800px;
@@ -33,6 +39,7 @@
     <h1>Hoist</h1>
 
     <canvas></canvas>
+    <button onclick="openFullscreen();this.blur();">full screen</button>
 
     <div>
         <p>
@@ -43,6 +50,17 @@
         </p>
     </div>
     <script>
+	    function openFullscreen() {
+  if (hoistArea.canvas.requestFullscreen) {
+    hoistArea.canvas.requestFullscreen();
+  } else if (hoistArea.canvas.mozRequestFullScreen) { /* Firefox */
+    hoistArea.canvas.mozRequestFullScreen();
+  } else if (hoistArea.canvas.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+    hoistArea.canvas.webkitRequestFullscreen();
+  } else if (hoistArea.canvas.msRequestFullscreen) { /* IE/Edge */
+    hoistArea.canvas.msRequestFullscreen();
+  }
+}
         var hoister;
         
         function startGame() {
