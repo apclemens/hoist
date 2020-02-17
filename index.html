@@ -202,9 +202,16 @@
                     return false;
                 }
         	    hoistArea.context.circle(this.x, this.y, this.diameter, {fill: 'rgb(148,149,153)', stroke: 'rgb(40,40,40)', fillStyle: 'solid', roughness: 3});
-                var ASTEROIDSHADOWANGLE = Math.atan2(this.y-hoister.y, hoister.x-this.x);
+                var ASTEROIDSHADOWANGLE = Math.PI*2/3;//Math.atan2(this.y-hoister.y, hoister.x-this.x);
                 var distance_to_hoister = Math.sqrt((this.y-hoister.y)**2 + (this.x-hoister.x)**2)
-                var RADMULTIPLIER = Math.atan(distance_to_hoister/100)/Math.PI;
+                var RADMULTIPLIER = .15;//Math.atan(distance_to_hoister/100)/Math.PI;
+                this.craters.forEach((crater) => {
+                    hoistArea.context.circle(
+                        this.x + crater.distance*Math.cos(Math.PI/180*(crater.angle+this.rot)),
+                        this.y - crater.distance*Math.sin(Math.PI/180*(crater.angle+this.rot)), 
+                        crater.diameter, {fill: 'rgb(40,40,40)', fillStyle: 'solid', stroke: 'rgb(200,200,200)'}
+                    )
+                })
                 hoistArea.context.polygon([[this.x - this.diameter/2*Math.cos(ASTEROIDSHADOWANGLE + Math.PI/2), this.y + this.diameter/2*Math.sin(ASTEROIDSHADOWANGLE + Math.PI/2)],
 
                                            [this.x - RADMULTIPLIER*this.diameter*Math.cos(ASTEROIDSHADOWANGLE + Math.PI/6), this.y + RADMULTIPLIER*this.diameter*Math.sin(ASTEROIDSHADOWANGLE + Math.PI/6)],
@@ -214,14 +221,7 @@
                                            [this.x - this.diameter/2*Math.cos(ASTEROIDSHADOWANGLE - Math.PI/4), this.y + this.diameter/2*Math.sin(ASTEROIDSHADOWANGLE - Math.PI/4)],
                                            [this.x - this.diameter/2*Math.cos(ASTEROIDSHADOWANGLE), this.y + this.diameter/2*Math.sin(ASTEROIDSHADOWANGLE)],
                                            [this.x - this.diameter/2*Math.cos(ASTEROIDSHADOWANGLE + Math.PI/4), this.y + this.diameter/2*Math.sin(ASTEROIDSHADOWANGLE + Math.PI/4)],
-                ], {fillStyle: 'solid', fill: 'rgb(80,80,80)', stroke: 'rgb(148,149,153)'})
-                this.craters.forEach((crater) => {
-                    hoistArea.context.circle(
-                        this.x + crater.distance*Math.cos(Math.PI/180*(crater.angle+this.rot)),
-                        this.y - crater.distance*Math.sin(Math.PI/180*(crater.angle+this.rot)), 
-                        crater.diameter, {fill: 'rgb(40,40,40)', fillStyle: 'solid', stroke: 'rgb(200,200,200)'}
-                    )
-                })
+                ], {fillStyle: 'solid', fill: 'rgba(0,0,0,.4)', stroke: 'rgb(148,149,153)'})
         	    if (distance_to_hoister < this.diameter/2 + hoister.diameter/2) {
         		    hoistArea.message = ['GAME OVER', 'SPACE TO RESTART'];
         		    clearInterval(hoistArea.interval);
@@ -255,6 +255,18 @@
         		}
         		decideToCreateEnemy = function() {
         			return false;
+        		}
+        		createEnemyFunction = function() {
+        			    var rand = Math.random();
+        				if (rand < .25) {
+        			    return new Asteroid(Math.random()*hoistArea.canvas.width, 0, Math.PI + Math.PI*Math.random(), .5+Math.random(), Math.random()*20-10, Math.random()*20+20)
+        				} else if (rand < .5) {
+        			    return new Asteroid(0, Math.random()*hoistArea.canvas.height, 3/2*Math.PI + Math.PI*Math.random(), .5+Math.random(), Math.random()*20-10, Math.random()*20+20)
+        				} else if (rand < .75) {
+        			    return new Asteroid(Math.random()*hoistArea.canvas.width, hoistArea.canvas.height, Math.PI*Math.random(), .5+Math.random(), Math.random()*20-10, Math.random()*20+20)
+        				} else {
+        			    return new Asteroid(hoistArea.canvas.width, Math.random()*hoistArea.canvas.height, 1/2*Math.PI + Math.PI*Math.random(), .5+Math.random(), Math.random()*20-10, Math.random()*20+20)
+        				}
         		}
         	}
         	if (frame == 500) {
@@ -307,24 +319,19 @@
         			return lettersChoice.length && Math.random() < .06;
         		}
         	}
-        	if (frame == 5000) {
+        	if (frame == 4000) {
         		decideToCreateEnemy = function() {
         			  return Math.random() < .01;
         		  }
-        		createEnemyFunction = function() {
-        			    var rand = Math.random();
-        				if (rand < .25) {
-        			    return new Asteroid(Math.random()*hoistArea.canvas.width, 0, Math.PI + Math.PI*Math.random(), .5+Math.random(), Math.random()*20-10, Math.random()*20+20)
-        				} else if (rand < .5) {
-        			    return new Asteroid(0, Math.random()*hoistArea.canvas.height, 3/2*Math.PI + Math.PI*Math.random(), .5+Math.random(), Math.random()*20-10, Math.random()*20+20)
-        				} else if (rand < .75) {
-        			    return new Asteroid(Math.random()*hoistArea.canvas.width, hoistArea.canvas.height, Math.PI*Math.random(), .5+Math.random(), Math.random()*20-10, Math.random()*20+20)
-        				} else {
-        			    return new Asteroid(hoistArea.canvas.width, Math.random()*hoistArea.canvas.height, 1/2*Math.PI + Math.PI*Math.random(), .5+Math.random(), Math.random()*20-10, Math.random()*20+20)
-        				}
-        		}
         		
         	}
+        	if (frame == 5000) {
+        		decideToCreateEnemy = function() {
+        			  return Math.random() < .02;
+        		  }
+        		
+        	}
+            /*
         	if (frame == 6000) {
         		hoistArea.message = ['NUMBERS WHY NOT'];
         		chooseLetter = function() {
@@ -340,6 +347,7 @@
         	if (frame == 6050) {
         		hoistArea.message = [];
         	}
+            */
         if (decideToCreateLetter(frame)) {
         	letters.push(createLetterFunction(frame));
         }
