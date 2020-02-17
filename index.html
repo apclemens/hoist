@@ -167,13 +167,19 @@
             this.x = x;
             this.y = y;
         	this.speed = speed;
+            this.grappleFrame = 0;
             this.update = function() {
                 this.y -= this.speed*Math.sin(direction);
                 this.x += this.speed*Math.cos(direction);
                 if ((this.x < 0) || (this.y < 0) || (this.y > hoistArea.canvas.height) || (this.x > hoistArea.canvas.width)) {
                     return false;
                 }
-        	    lettersDraw(hoistArea.context, this.letter, this.x, this.y, 30, {})
+                if (this.grappleFrame) {
+                    this.grappleFrame --;
+                    hoistArea.context.line(hoister.x, hoister.y, this.x, this.y, {roughness: (10-this.grappleFrame)/3, stroke: 'rgba(0,100,0,'+((10-this.grappleFrame)/10)+')'});
+                    hoistArea.context.circle(this.x, this.y, 50, {fill: 'rgba(255,255,255,'+((10-this.grappleFrame)/10)+')', fillStyle: 'solid', stroke: 'rgba(0,100,0,'+((10-this.grappleFrame)/10)+')', roughness: (10-this.grappleFrame)/3});
+                }
+                lettersDraw(hoistArea.context, this.letter, this.x, this.y, 30, {})
                 return true;
             }
         }
@@ -347,11 +353,7 @@
                     }
         
                     var dist_sq = ((hoister.x - grappleLetter.x)**2 + (hoister.y - grappleLetter.y)**2);
-        
-                    hoistArea.context.line(hoister.x, hoister.y, grappleLetter.x, grappleLetter.y, {roughness: 5, stroke: 'green'});
-                    hoistArea.context.circle(grappleLetter.x, grappleLetter.y, 50, {fill: 'white', fillStyle: 'solid', stroke: 'green'});
-                    lettersDraw(hoistArea.context, grappleLetter.letter, grappleLetter.x, grappleLetter.y, 30, {stroke: 'green'});
-        
+                    grappleLetter.grappleFrame = 5;
                     hoister.v_x -= (hoister.x - grappleLetter.x) * 3 / Math.sqrt(dist_sq);
                     hoister.v_y -= (hoister.y - grappleLetter.y) * 3 / Math.sqrt(dist_sq);
                 }
