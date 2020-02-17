@@ -110,10 +110,10 @@
                             hoistArea.interval = setInterval(updateHoistArea, 20);
                             hoistArea.message = '';
                             letters = [];
-        			enemies = [];
+                            enemies = [];
                             frame = 0;
                             lettersChoice = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-        		    numbersChoice = ['1','2','3','4','5','6','7','8','9','0'];
+                            numbersChoice = ['1','2','3','4','5','6','7','8','9','0'];
                         } else {
                             if (hoistArea.interval) {
                                 hoistArea.message = ['PAUSED', 'SPACE TO CONTINUE'];
@@ -183,17 +183,16 @@
                 return true;
             }
         }
-        function Asteroid(x, y, direction, speed, angular_speed, radius) {
+        function Asteroid(x, y, direction, speed, angular_speed, diameter) {
             this.x = x;
             this.y = y;
         	this.angular_speed = angular_speed;
-        	this.radius = radius;
+        	this.diameter = diameter;
         	this.rot = 0;
         	this.speed = speed;
-            // TODO give asteroid craters
             this.craters = [];
             for (var i=0; i<5; i++) {
-                this.craters.push({distance: Math.sqrt(Math.random())*radius/2, angle: Math.random()*360, radius: (1.5+Math.random())*radius*.1})
+                this.craters.push({distance: Math.sqrt(Math.random())*diameter/2, angle: Math.random()*360, diameter: (1.5+Math.random())*diameter*.1})
             }
             this.update = function() {
                 this.y -= this.speed*Math.sin(direction);
@@ -202,24 +201,27 @@
                 if ((this.x < 0) || (this.y < 0) || (this.y > hoistArea.canvas.height) || (this.x > hoistArea.canvas.width)) {
                     return false;
                 }
-        	    hoistArea.context.circle(this.x, this.y, this.radius, {fill: 'rgb(148,149,153)', stroke: 'rgb(40,40,40)', fillStyle: 'solid', roughness: 3});
+        	    hoistArea.context.circle(this.x, this.y, this.diameter, {fill: 'rgb(148,149,153)', stroke: 'rgb(40,40,40)', fillStyle: 'solid', roughness: 3});
                 var ASTEROIDSHADOWANGLE = Math.atan2(this.y-hoister.y, hoister.x-this.x);
                 var RADMULTIPLIER = Math.atan(Math.sqrt((this.y-hoister.y)**2 + (this.x-hoister.x)**2)/100)/Math.PI;
-                console.log(RADMULTIPLIER);
-                hoistArea.context.polygon([[this.x - this.radius/2*Math.cos(ASTEROIDSHADOWANGLE + Math.PI/2), this.y + this.radius/2*Math.sin(ASTEROIDSHADOWANGLE + Math.PI/2)],
+                hoistArea.context.polygon([[this.x - this.diameter/2*Math.cos(ASTEROIDSHADOWANGLE + Math.PI/2), this.y + this.diameter/2*Math.sin(ASTEROIDSHADOWANGLE + Math.PI/2)],
 
-                                           [this.x - RADMULTIPLIER*this.radius*Math.cos(ASTEROIDSHADOWANGLE + Math.PI/6), this.y + RADMULTIPLIER*this.radius*Math.sin(ASTEROIDSHADOWANGLE + Math.PI/6)],
-                                           [this.x - RADMULTIPLIER*this.radius*Math.cos(ASTEROIDSHADOWANGLE - Math.PI/6), this.y + RADMULTIPLIER*this.radius*Math.sin(ASTEROIDSHADOWANGLE - Math.PI/6)],
+                                           [this.x - RADMULTIPLIER*this.diameter*Math.cos(ASTEROIDSHADOWANGLE + Math.PI/6), this.y + RADMULTIPLIER*this.diameter*Math.sin(ASTEROIDSHADOWANGLE + Math.PI/6)],
+                                           [this.x - RADMULTIPLIER*this.diameter*Math.cos(ASTEROIDSHADOWANGLE - Math.PI/6), this.y + RADMULTIPLIER*this.diameter*Math.sin(ASTEROIDSHADOWANGLE - Math.PI/6)],
 
-                                           [this.x - this.radius/2*Math.cos(ASTEROIDSHADOWANGLE - Math.PI/2), this.y + this.radius/2*Math.sin(ASTEROIDSHADOWANGLE - Math.PI/2)],
-                                           [this.x - this.radius/2*Math.cos(ASTEROIDSHADOWANGLE - Math.PI/4), this.y + this.radius/2*Math.sin(ASTEROIDSHADOWANGLE - Math.PI/4)],
-                                           [this.x - this.radius/2*Math.cos(ASTEROIDSHADOWANGLE), this.y + this.radius/2*Math.sin(ASTEROIDSHADOWANGLE)],
-                                           [this.x - this.radius/2*Math.cos(ASTEROIDSHADOWANGLE + Math.PI/4), this.y + this.radius/2*Math.sin(ASTEROIDSHADOWANGLE + Math.PI/4)],
+                                           [this.x - this.diameter/2*Math.cos(ASTEROIDSHADOWANGLE - Math.PI/2), this.y + this.diameter/2*Math.sin(ASTEROIDSHADOWANGLE - Math.PI/2)],
+                                           [this.x - this.diameter/2*Math.cos(ASTEROIDSHADOWANGLE - Math.PI/4), this.y + this.diameter/2*Math.sin(ASTEROIDSHADOWANGLE - Math.PI/4)],
+                                           [this.x - this.diameter/2*Math.cos(ASTEROIDSHADOWANGLE), this.y + this.diameter/2*Math.sin(ASTEROIDSHADOWANGLE)],
+                                           [this.x - this.diameter/2*Math.cos(ASTEROIDSHADOWANGLE + Math.PI/4), this.y + this.diameter/2*Math.sin(ASTEROIDSHADOWANGLE + Math.PI/4)],
                 ], {fillStyle: 'solid', fill: 'rgb(80,80,80)', stroke: 'rgb(148,149,153)'})
                 this.craters.forEach((crater) => {
-                    hoistArea.context.circle(this.x + crater.distance*Math.cos(Math.PI/180*(crater.angle+this.rot)), this.y - crater.distance*Math.sin(Math.PI/180*(crater.angle+this.rot)), crater.radius, {fill: 'rgb(40,40,40)', fillStyle: 'solid', stroke: 'rgb(200,200,200)'})
+                    hoistArea.context.circle(
+                        this.x + crater.distance*Math.cos(Math.PI/180*(crater.angle+this.rot)),
+                        this.y - crater.distance*Math.sin(Math.PI/180*(crater.angle+this.rot)), 
+                        crater.diameter, {fill: 'rgb(40,40,40)', fillStyle: 'solid', stroke: 'rgb(200,200,200)'}
+                    )
                 })
-        	    if (Math.sqrt((this.x - hoister.x)**2 + (this.y - hoister.y)**2) < this.radius/2 + hoister.width/2) {
+        	    if (Math.sqrt((this.x - hoister.x)**2 + (this.y - hoister.y)**2) < this.diameter/2 + hoister.width/2) {
         		    hoistArea.message = ['GAME OVER', 'SPACE TO RESTART'];
         		    clearInterval(hoistArea.interval);
         		    hoistArea.gameOver = true;
@@ -322,8 +324,7 @@
         		}
         		
         	}
-        							  /*
-        	if (frame == 5000) {
+        	if (frame == 6000) {
         		hoistArea.message = ['NUMBERS WHY NOT'];
         		chooseLetter = function() {
         		    var index = Math.floor(Math.random()*numbersChoice.length);
@@ -335,10 +336,9 @@
         			return numbersChoice.length && Math.random() < .06;
         		}
         	}
-        	if (frame == 5050) {
+        	if (frame == 6050) {
         		hoistArea.message = [];
         	}
-        	*/
         if (decideToCreateLetter(frame)) {
         	letters.push(createLetterFunction(frame));
         }
