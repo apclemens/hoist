@@ -190,6 +190,11 @@
         	this.radius = radius;
         	this.rot = 0;
         	this.speed = speed;
+            // TODO give asteroid craters
+            this.craters = [];
+            for (var i=0; i<5; i++) {
+                this.craters.push({distance: Math.sqrt(Math.random())*radius/2, angle: Math.random()*360, radius: (1.5+Math.random())*radius*.1})
+            }
             this.update = function() {
                 this.y -= this.speed*Math.sin(direction);
         	    this.rot += this.angular_speed;
@@ -197,7 +202,23 @@
                 if ((this.x < 0) || (this.y < 0) || (this.y > hoistArea.canvas.height) || (this.x > hoistArea.canvas.width)) {
                     return false;
                 }
-        	    hoistArea.context.circle(this.x, this.y, this.radius, {fill: 'rgb(238,33,74)', hachureAngle: this.rot, stroke: 'rgb(238,33,74)'});
+        	    hoistArea.context.circle(this.x, this.y, this.radius, {fill: 'rgb(148,149,153)', stroke: 'rgb(40,40,40)', fillStyle: 'solid', roughness: 3});
+                var ASTEROIDSHADOWANGLE = Math.atan2(this.y-hoister.y, hoister.x-this.x);
+                var RADMULTIPLIER = Math.atan(Math.sqrt((this.y-hoister.y)**2 + (this.x-hoister.x)**2)/100)/Math.PI;
+                console.log(RADMULTIPLIER);
+                hoistArea.context.polygon([[this.x - this.radius/2*Math.cos(ASTEROIDSHADOWANGLE + Math.PI/2), this.y + this.radius/2*Math.sin(ASTEROIDSHADOWANGLE + Math.PI/2)],
+
+                                           [this.x - RADMULTIPLIER*this.radius*Math.cos(ASTEROIDSHADOWANGLE + Math.PI/6), this.y + RADMULTIPLIER*this.radius*Math.sin(ASTEROIDSHADOWANGLE + Math.PI/6)],
+                                           [this.x - RADMULTIPLIER*this.radius*Math.cos(ASTEROIDSHADOWANGLE - Math.PI/6), this.y + RADMULTIPLIER*this.radius*Math.sin(ASTEROIDSHADOWANGLE - Math.PI/6)],
+
+                                           [this.x - this.radius/2*Math.cos(ASTEROIDSHADOWANGLE - Math.PI/2), this.y + this.radius/2*Math.sin(ASTEROIDSHADOWANGLE - Math.PI/2)],
+                                           [this.x - this.radius/2*Math.cos(ASTEROIDSHADOWANGLE - Math.PI/4), this.y + this.radius/2*Math.sin(ASTEROIDSHADOWANGLE - Math.PI/4)],
+                                           [this.x - this.radius/2*Math.cos(ASTEROIDSHADOWANGLE), this.y + this.radius/2*Math.sin(ASTEROIDSHADOWANGLE)],
+                                           [this.x - this.radius/2*Math.cos(ASTEROIDSHADOWANGLE + Math.PI/4), this.y + this.radius/2*Math.sin(ASTEROIDSHADOWANGLE + Math.PI/4)],
+                ], {fillStyle: 'solid', fill: 'rgb(80,80,80)', stroke: 'rgb(148,149,153)'})
+                this.craters.forEach((crater) => {
+                    hoistArea.context.circle(this.x + crater.distance*Math.cos(Math.PI/180*(crater.angle+this.rot)), this.y - crater.distance*Math.sin(Math.PI/180*(crater.angle+this.rot)), crater.radius, {fill: 'rgb(40,40,40)', fillStyle: 'solid', stroke: 'rgb(200,200,200)'})
+                })
         	    if (Math.sqrt((this.x - hoister.x)**2 + (this.y - hoister.y)**2) < this.radius/2 + hoister.width/2) {
         		    hoistArea.message = ['GAME OVER', 'SPACE TO RESTART'];
         		    clearInterval(hoistArea.interval);
