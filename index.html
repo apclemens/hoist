@@ -46,7 +46,7 @@
             <strong>Instructions:</strong> Tap the letter on your keyboard to grapple onto it and hoist yourself up. Avoid the edges and survive for as long as you can. Press space to pause.
         </p>
         <p>
-            Thanks to the folks at <a href="https://roughjs.com/" target="_blank">rough.js</a> for providing a team of animators to painstakingly hand draw each frame in real time.
+            Thanks to the folks at <a href="https://roughjs.com/" target="_blank">rough.js</a> for providing a team of animators to hand draw each frame in real time.
         </p>
     </div>
     <script>
@@ -62,6 +62,10 @@
   }
 }
         var hoister;
+var leftEdge;
+var rightEdge;
+var upEdge;
+var downEdge;
         
         function startGame() {
             hoister = new Hoister(30,"red",240,500);
@@ -72,6 +76,10 @@
             start: function() {
                 this.canvas.width = 480;
                 this.canvas.height = 600;
+leftEdge = 0;
+rightEdge = this.canvas.width;
+upEdge = 0;
+downEdge = this.canvas.height;
                 this.context = rough.canvas(this.canvas)
         	    this.normalContext = this.canvas.getContext('2d');
                 this.normalContext.font = "30px Arial";
@@ -114,6 +122,32 @@
                             frame = 0;
                             lettersChoice = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
                             numbersChoice = ['1','2','3','4','5','6','7','8','9','0'];
+				rightEdge = hoistArea.canvas.width
+				leftEdge = 0;
+				upEdge = 0;
+				downEdge = hoistArea.canvas.height;
+
+				spikeLines = [[],[],[],[]];
+                for (var i=10; i<hoistArea.canvas.height; i+=20) {
+                    spikeLines[0].push([0,i]);
+                    spikeLines[0].push([10,i+10]);
+                }
+                spikeLines[0].push([-10,hoistArea.canvas.height+10])
+                for (var i=10; i<hoistArea.canvas.width; i+=20) {
+                    spikeLines[1].push([i, hoistArea.canvas.height]);
+                    spikeLines[1].push([i+10,hoistArea.canvas.height-10]);
+                }
+                spikeLines[1].push([hoistArea.canvas.width+10, hoistArea.canvas.height+10])
+                for (var i=hoistArea.canvas.height-10; i>0; i-=20) {
+                    spikeLines[2].push([hoistArea.canvas.width,i]);
+                    spikeLines[2].push([hoistArea.canvas.width-10,i-10]);
+                }
+                spikeLines[2].push([hoistArea.canvas.width+10, -10])
+                for (var i=hoistArea.canvas.width-10; i>0; i-=20) {
+                    spikeLines[3].push([i, 0]);
+                    spikeLines[3].push([i-10,10]);
+                }
+                spikeLines[3].push([-10,-10])
                         } else {
                             if (hoistArea.interval) {
                                 hoistArea.message = ['PAUSED', 'SPACE TO CONTINUE'];
@@ -155,7 +189,8 @@
                     ctx.line(0, this.y+this.diameter/2, hoistArea.canvas.width, this.y+this.diameter/2)
                 }
         
-                if ((this.x - this.diameter/2 < 0) || (this.y - this.diameter/2 < 0) || (this.y + this.diameter/2 > hoistArea.canvas.height) || (this.x + this.diameter/2 > hoistArea.canvas.width)) {
+                if ((this.x - this.diameter/2 < leftEdge) || (this.y - this.diameter/2 < upEdge) || (this.y + this.diameter/2 > downEdge) || (this.x + this.diameter/2 > rightEdge)) {
+			console.log(downEdge);
                     hoistArea.message = ['GAME OVER', 'SPACE TO RESTART'];
                     clearInterval(hoistArea.interval);
                     hoistArea.gameOver = true;
@@ -230,6 +265,38 @@
                 return true;
             }
         }
+	function Missile(x, y, direction) {
+		this.x = x;
+		this.y = y;
+		this.direction = direction;
+		this.update = function() {
+			this.y -= Math.sin(this.direction)
+			this.x += Math.cos(this.direction)
+			var direction_to_hoister = Math.atan2(hoister.y-this.y, this.x-hoister.x);
+			if ((this.direction - direction_to_hoister) % (2*Math.PI) < Math.PI) {
+				this.direction += .05;
+			} else {
+				this.direction -= .05;
+			}
+			for (var i=1; i<4; i++) {
+				hoistArea.context.line(
+					this.x+Math.cos(direction_to_hoister+Math.PI/2)*15+Math.cos(direction_to_hoister)*30*i/3, this.y-Math.sin(direction_to_hoister+Math.PI/2)*15-Math.sin(direction_to_hoister)*30*i/3,
+					this.x+Math.cos(direction_to_hoister-Math.PI/2)*15+Math.cos(direction_to_hoister)*30*i/3, this.y-Math.sin(direction_to_hoister-Math.PI/2)*15-Math.sin(direction_to_hoister)*30*i/3,
+					{roughness: 5, stroke: 'red', strokeWidth: 5}
+				)
+			}
+			hoistArea.context.circle(this.x, this.y, 30, {fill: 'white', fillStyle: 'solid'});
+			hoistArea.context.line(
+				this.x+Math.cos(direction_to_hoister+Math.PI/2)*15, this.y-Math.sin(direction_to_hoister+Math.PI/2)*15,
+				this.x+Math.cos(direction_to_hoister+Math.PI/2)*15+Math.cos(direction_to_hoister)*30, this.y-Math.sin(direction_to_hoister+Math.PI/2)*15-Math.sin(direction_to_hoister)*30
+			, {roughness: 0, stroke: 'red'})
+			hoistArea.context.line(
+				this.x+Math.cos(direction_to_hoister-Math.PI/2)*15+Math.cos(direction_to_hoister)*30, this.y-Math.sin(direction_to_hoister-Math.PI/2)*15-Math.sin(direction_to_hoister)*30,
+				this.x+Math.cos(direction_to_hoister-Math.PI/2)*15, this.y-Math.sin(direction_to_hoister-Math.PI/2)*15
+			, {roughness: 0, stroke: 'red'})
+			return true;
+		}
+	}
         var frame = 0;
         var spikeLines = [[],[],[],[]];
         var letters = [];
@@ -239,7 +306,31 @@
         var lettersChoice = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
         var numbersChoice = ['1','2','3','4','5','6','7','8','9','0'];
         function updateHoistArea() {
+	/*
+		if (frame % 1000 < 500) {
+			spikeLines[0].forEach((point) => point[0] += .2)
+			spikeLines[1].forEach((point) => point[1] -= .2)
+			spikeLines[2].forEach((point) => point[0] -= .2)
+			spikeLines[3].forEach((point) => point[1] += .2)
+			rightEdge -= .2;
+			leftEdge += .2;
+			upEdge += .2;
+			downEdge -= .2;
+		} else {
+			spikeLines[0].forEach((point) => point[0] -= .2)
+			spikeLines[1].forEach((point) => point[1] += .2)
+			spikeLines[2].forEach((point) => point[0] += .2)
+			spikeLines[3].forEach((point) => point[1] -= .2)
+			rightEdge += .2;
+			leftEdge -= .2;
+			upEdge -= .2;
+			downEdge += .2;
+		}
+		*/
         	if (frame == 0) {
+		/*
+		enemies.push(new Missile(0,0,0));
+		*/
         		chooseLetter = function() {
         		    var index = Math.floor(Math.random()*lettersChoice.length);
         		    var newLetter = lettersChoice[index];
