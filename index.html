@@ -279,8 +279,8 @@ downEdge = this.canvas.height;
 		this.update = function() {
 			this.distance --;
 
-			var v1x = hoistArea.canvas.width/2 + this.distance * Math.cos(this.angle) - 1000*Math.cos(this.angle + Math.PI/2);
-			var v1y = hoistArea.canvas.height/2 + this.distance * Math.sin(this.angle) - 1000*Math.sin(this.angle + Math.PI/2);
+			var v1x = hoistArea.canvas.width/2 + this.distance * Math.cos(this.angle) - Math.sqrt((hoistArea.canvas.width/2)**2+(hoistArea.canvas.height/2)**2)*Math.cos(this.angle + Math.PI/2);
+			var v1y = hoistArea.canvas.height/2 + this.distance * Math.sin(this.angle) - Math.sqrt((hoistArea.canvas.width/2)**2+(hoistArea.canvas.height/2)**2)*Math.sin(this.angle + Math.PI/2);
 			var w1x = hoistArea.canvas.width/2 + this.distance * Math.cos(this.angle) + (this.hole-this.holeSize/2)*Math.cos(this.angle + Math.PI/2);
 			var w1y = hoistArea.canvas.height/2 + this.distance * Math.sin(this.angle) + (this.hole-this.holeSize/2)*Math.sin(this.angle + Math.PI/2);
 
@@ -290,8 +290,8 @@ downEdge = this.canvas.height;
 
 			var v2x = hoistArea.canvas.width/2 + this.distance * Math.cos(this.angle) + (this.hole+this.holeSize/2)*Math.cos(this.angle + Math.PI/2);
 			var v2y = hoistArea.canvas.height/2 + this.distance * Math.sin(this.angle) + (this.hole+this.holeSize/2)*Math.sin(this.angle + Math.PI/2);
-			var w2x = hoistArea.canvas.width/2 + this.distance * Math.cos(this.angle) + 1000*Math.cos(this.angle + Math.PI/2);
-			var w2y = hoistArea.canvas.height/2 + this.distance * Math.sin(this.angle) + 1000*Math.sin(this.angle + Math.PI/2);
+			var w2x = hoistArea.canvas.width/2 + this.distance * Math.cos(this.angle) + Math.sqrt((hoistArea.canvas.width/2)**2+(hoistArea.canvas.height/2)**2)*Math.cos(this.angle + Math.PI/2);
+			var w2y = hoistArea.canvas.height/2 + this.distance * Math.sin(this.angle) + Math.sqrt((hoistArea.canvas.width/2)**2+(hoistArea.canvas.height/2)**2)*Math.sin(this.angle + Math.PI/2);
 
 			t = ((hoister.x - v2x) * (w2x-v2x) + (hoister.y - v2y) * (w2y-v2y)) / ((v2x-w2x)**2 + (v2y-w2y)**2);
 			t = Math.max(0, Math.min(1,t));
