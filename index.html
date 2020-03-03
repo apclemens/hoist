@@ -36,6 +36,7 @@
 </head>
 
 <body onload="startGame()">
+    <input type="text" style="display:none;" id="invisibleInput">
     <h1>Hoist</h1>
 
     <canvas></canvas>
@@ -68,6 +69,7 @@ var upEdge;
 var downEdge;
         
         function startGame() {
+            document.getElementById('invisibleInput').focus();
             hoister = new Hoister(30,"red",300,500);
             hoistArea.start();
         }
