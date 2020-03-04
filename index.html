@@ -335,6 +335,7 @@ downEdge = this.canvas.height;
 				    return false;
 				}
 			}
+            if (!this.dead) {
 			for (var i=1; i<4; i++) {
 				hoistArea.roughContext.line(
 					this.x+Math.cos(Math.PI+this.direction+Math.PI/2)*11+Math.cos(Math.PI+this.direction)*30*i/3, this.y-Math.sin(Math.PI+this.direction+Math.PI/2)*11-Math.sin(Math.PI+this.direction)*30*i/3,
@@ -342,6 +343,7 @@ downEdge = this.canvas.height;
 					{roughness: 1, stroke: 'rgb(8,59,178)', strokeWidth: 5*(4-i)/3}
 				)
 			}
+            }
             hoistArea.roughContext.arc(
                 this.x, this.y, 30, 30, -this.direction-.5*Math.PI, -this.direction+.5*Math.PI, true, {roughness: 1.5, fill: 'rgb(221,0,0)', fillStyle: 'solid', stroke: 'none'}
             )
