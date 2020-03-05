@@ -219,6 +219,14 @@ downEdge = this.canvas.height;
                 }
                 if (this.grappleFrame) {
                     this.grappleFrame --;
+
+
+                    var direction_to_hoister = Math.atan2(this.y-hoister.y, this.x-hoister.x);
+                    var distance_to_hoister = Math.sqrt((this.y-hoister.y)**2 + (this.x-hoister.x)**2)
+//                    hoistArea.roughContext.circle(hoister.x + hoister.diameter/2*Math.cos(direction_to_hoister), hoister.y + hoister.diameter/2*Math.sin(direction_to_hoister), 5, {fill: 'black', fillStyle: 'solid'})
+//                    hoistArea.roughContext.circle(this.x + 50*Math.cos(Math.PI/2 - Math.acos(50/distance_to_hoister)), this.y + 50*Math.sin(Math.PI/2 - Math.asin(50/distance_to_hoister)), 5, {fill: 'black', fillStyle: 'solid'})
+
+
                     hoistArea.roughContext.line(hoister.x, hoister.y, this.x, this.y, {roughness: 10, stroke: 'rgb(0,100,0)'});
                     hoistArea.roughContext.circle(this.x, this.y, 50, {fill: 'rgb(255,255,255)', fillStyle: 'solid', stroke: 'rgb(0,100,0)', roughness: 10});
                 }
